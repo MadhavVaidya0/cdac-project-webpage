@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Checklist App</title>
+  <style>
+    /* Black theme styling */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #f5f5f5;
+      margin: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #00ffcc;
+    }
+    form {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    input[type="text"] {
+      padding: 0.5rem;
+      border: none;
+      border-radius: 4px;
+      width: 250px;
+      margin-right: 0.5rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      background-color: #00ffcc;
+      color: #121212;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #00cc99;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    li {
+      background-color: #1e1e1e;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    li span {
+      flex-grow: 1;
+      margin-left: 0.5rem;
+    }
+    input[type="checkbox"] {
+      transform: scale(1.2);
+    }
+    .delete-btn {
+      background-color: #ff4444;
+      color: #fff;
+      margin-left: 0.5rem;
+    }
+    .delete-btn:hover {
+      background-color: #cc0000;
+    }
+  </style>
+</head>
+<body>
+  <h1>My Checklist</h1>
+  
+  <form id="taskForm">
+    <input type="text" id="taskInput" placeholder="Enter a task" required>
+    <button type="submit">Add</button>
+  </form>
+  
+  <ul id="taskList"></ul>
+  
+  <script>
+    const API_URL = "tasks.php"; // assumes index.html and tasks.php are in same folder
+
+    const taskForm = document.getElementById("taskForm");
+    const taskInput = document.getElementById("taskInput");
+    const taskList = document.getElementById("taskList");
+
+    // Load tasks
+    async function loadTasks() {
+      const res = await fetch(API_URL);
+      const tasks = await res.json();
+      taskList.innerHTML = "";
+      tasks.forEach(task => {
+        const li = document.createElement("li");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = !!task.done;
+        checkbox.onchange = () => updateTask(task.id, checkbox.checked);
+
+        const span = document.createElement("span");
+        span.textContent = task.task;
+        if (task.done) {
+          span.style.textDecoration = "line-through";
+          span.style.color = "#888";
+        }
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.className = "delete-btn";
+        delBtn.onclick = () => deleteTask(task.id);
+
+        li.appendChild(checkbox);
+        li.appendChild(span);
+        li.appendChild(delBtn);
+        taskList.appendChild(li);
+      });
+    }
+
+    // Add task
+    taskForm.onsubmit = async (e) => {
+      e.preventDefault();
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "task=" + encodeURIComponent(taskInput.value)
+      });
+      taskInput.value = "";
+      loadTasks();
+    };
+
+    // Update task
+    async function updateTask(id, done) {
+      await fetch(API_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: id, done: done ? 1 : 0 })
+      });
+      loadTasks();
+    }
+
+    // Delete task
+    async function deleteTask(id) {
+      await fetch(API_URL, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: id })
+      });
+      loadTasks();
+    }
+
+    // Initial load
+    loadTasks();
+  </script>
+</body>
+</html>
+
+
+
+
