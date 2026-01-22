@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: devsecops-demo:v1
+        image: devsecops-demo:${BUILD_NUMBER}
         ports:
         - containerPort: 80
 ---

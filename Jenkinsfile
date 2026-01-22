@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "devsecops-demo"
-        IMAGE_TAG  = "v1"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
     }
 
     stages {
