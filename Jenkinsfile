@@ -47,12 +47,14 @@ pipeline {
             string(credentialsId: 'cosign-pass', variable: 'COSIGN_PASSWORD')
         ]) {
             sh '''
-              DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' localhost:5000/${IMAGE_NAME}:${IMAGE_TAG})
+              RAW_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' localhost:5000/${IMAGE_NAME}:${IMAGE_TAG})
+              DIGEST="localhost:5000/${RAW_DIGEST#*/}"
               cosign sign --key $COSIGN_KEY $DIGEST
             '''
         }
     }
 }
+
 
 
         stage('Deploy to Kubernetes') {
