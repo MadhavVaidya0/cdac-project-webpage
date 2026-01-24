@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "devsecops-demo"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
+        REGISTRY   = "localhost:5000"
+    }
+
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+            }
+        }
+
+        stage('Scan Image') {
+            steps {
+                sh 'trivy image --severity HIGH,CRITICAL $IMAGE_NAME:$IMAGE_TAG || true'
+            }
+        }
+
+       stage('Sign Image with Cosign') {
+    steps {
+        withCredentials([file(credentialsId: 'cosign-key', variable: 'COSIGN_KEY')]) {
+            sh '''
+              export COSIGN_PASSWORD=""
+              DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG})
+              cosign sign --key $COSIGN_KEY $DIGEST
+            '''
+        }
+    }
+}
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'kubectl apply -f k8s-deploy.yaml'
+            }
+        }
+    }
+}
+

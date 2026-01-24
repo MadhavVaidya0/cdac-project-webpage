@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: web
-        image: devsecops-demo:${BUILD_NUMBER}
+        image: localhost:5000/devsecops-demo:${IMAGE_TAG}
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
 ---
