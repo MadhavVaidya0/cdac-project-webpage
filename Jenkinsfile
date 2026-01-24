@@ -45,7 +45,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'cosign-key', variable: 'COSIGN_KEY')]) {
                     sh '''
                       export COSIGN_PASSWORD=""
-                      DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG})
+                      DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} | sed 's|^|localhost:5000/|')
                       cosign sign --key $COSIGN_KEY $DIGEST
                     '''
                 }
