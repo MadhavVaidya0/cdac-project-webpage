@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: 192.168.10.130:5000/todo-frontend-fixed:1
+        image: 192.168.10.130:5000/todo-frontend:IMAGE_TAG
         imagePullPolicy: Always
         ports:
         - containerPort: 80

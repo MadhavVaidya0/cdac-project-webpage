@@ -15,8 +15,8 @@ spec:
         role: worker
       containers:
       - name: backend
-        image: todo-backend:latest
-        imagePullPolicy: IfNotPresent
+        image: 192.168.10.130:5000/todo-backend:IMAGE_TAG
+        imagePullPolicy: Always
         env:
         - name: DB_HOST
           value: mysql-service

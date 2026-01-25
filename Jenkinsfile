@@ -86,20 +86,15 @@ pipeline {
     environment {
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
+    stage('Deploy to Kubernetes') {
     steps {
         sh '''
-          sed -i "s|IMAGE_TAG|$TAG|g" k8s/backend.yaml
           sed -i "s|IMAGE_TAG|$TAG|g" k8s/frontend.yaml
+          sed -i "s|IMAGE_TAG|$TAG|g" k8s/backend.yaml
 
-          # ensure imagePullPolicy Always
-          sed -i "/image:/a\\        imagePullPolicy: Always" k8s/frontend.yaml
-
-          kubectl apply -f k8s/mysql.yaml
-          kubectl apply -f k8s/backend.yaml
-          kubectl apply -f k8s/frontend.yaml
-
-          #  force rollout so UI always updates
+          kubectl apply -f k8s/
           kubectl rollout restart deployment frontend
+          kubectl rollout restart deployment backend
         '''
     }
 }
