@@ -1,0 +1,10 @@
+# Docker / K3s artifacts
+*.tar
+images/
+
+# Node / build artifacts
+node_modules/
+
+# Secrets
+.env
+
