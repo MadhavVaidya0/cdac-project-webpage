@@ -82,10 +82,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-    environment {
-        KUBECONFIG = "/var/lib/jenkins/.kube/config"
-    }
+      
     stage('Deploy to Kubernetes') {
     steps {
         sh '''
