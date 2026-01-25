@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      nodeSelector:
+        role: worker
+      containers:
+      - name: backend
+        image: todo-backend:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: DB_HOST
+          value: mysql-service
+        - name: DB_USER
+          value: todo
+        - name: DB_PASSWORD
+          value: todo123
+        - name: DB_NAME
+          value: tododb
+        ports:
+        - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 3000
+

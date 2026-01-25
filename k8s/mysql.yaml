@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MYSQL_DATABASE
+          value: tododb
+        - name: MYSQL_USER
+          value: todo
+        - name: MYSQL_PASSWORD
+          value: todo123
+        - name: MYSQL_ROOT_PASSWORD
+          value: root123
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      nodeSelector:
+        role: worker
+      containers:
+      - name: mysql
+        image: mysql:8
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MYSQL_DATABASE
+          value: tododb
+        - name: MYSQL_USER
+          value: todo
+        - name: MYSQL_PASSWORD
+          value: todo123
+        - name: MYSQL_ROOT_PASSWORD
+          value: root123
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
