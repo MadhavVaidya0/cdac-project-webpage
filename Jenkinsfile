@@ -70,8 +70,11 @@ pipeline {
               FRONTEND_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${REGISTRY}/${FRONTEND_IMAGE}:${IMAGE_TAG})
               BACKEND_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${REGISTRY}/${BACKEND_IMAGE}:${IMAGE_TAG})
 
-              cosign sign --key $COSIGN_KEY $FRONTEND_DIGEST
-              cosign sign --key $COSIGN_KEY $BACKEND_DIGEST
+              echo "Signing $FRONTEND_DIGEST"
+              echo "Signing $BACKEND_DIGEST"
+
+              COSIGN_DOCKER_MEDIA_TYPES=1 cosign sign --key $COSIGN_KEY $FRONTEND_DIGEST
+              COSIGN_DOCKER_MEDIA_TYPES=1 cosign sign --key $COSIGN_KEY $BACKEND_DIGEST
             '''
         }
     }
