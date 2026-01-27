@@ -86,15 +86,13 @@ pipeline {
     stage('Deploy to Kubernetes') {
     steps {
         sh '''
-          sed -i "s|IMAGE_TAG|$TAG|g" k8s/frontend.yaml
-          sed -i "s|IMAGE_TAG|$TAG|g" k8s/backend.yaml
+          kubectl set image deployment/backend backend=$REGISTRY/$BACKEND_IMAGE:$TAG
+          kubectl set image deployment/frontend frontend=$REGISTRY/$FRONTEND_IMAGE:$TAG
 
-          kubectl apply -f k8s/
-          kubectl rollout restart deployment frontend
-          kubectl rollout restart deployment backend
+          kubectl rollout status deployment/backend
+          kubectl rollout status deployment/frontend
         '''
     }
 }
-
 }
 }
