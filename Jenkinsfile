@@ -94,5 +94,32 @@ pipeline {
         '''
     }
 }
+    stage('Cleanup Old Registry Images') {
+    steps {
+        sh '''
+          cleanup_repo () {
+            IMAGE=$1
+            echo "Cleaning old tags for $IMAGE"
+
+            TAGS=$(curl -s http://$REGISTRY/v2/$IMAGE/tags/list | jq -r '.tags[]' | sort -n | head -n -3)
+
+            for tag in $TAGS; do
+              echo "Deleting $IMAGE:$tag"
+              DIGEST=$(curl -s -I \
+                -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+                http://$REGISTRY/v2/$IMAGE/manifests/$tag | \
+                grep Docker-Content-Digest | awk '{print $2}' | tr -d $'\\r')
+
+              curl -s -X DELETE http://$REGISTRY/v2/$IMAGE/manifests/$DIGEST
+            done
+          }
+
+          cleanup_repo $BACKEND_IMAGE
+          cleanup_repo $FRONTEND_IMAGE
+        '''
+    }
+}
+
+
 }
 }
