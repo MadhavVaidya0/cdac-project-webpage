@@ -69,16 +69,35 @@ app.post("/login", (req, res) => {
   const { username, password } = req.body;
 
   db.query("SELECT * FROM users WHERE username = ?", [username], async (err, results) => {
-    if (results.length === 0) return res.status(401).json({ error: "Invalid credentials" });
+    if (err) {
+      console.error("DB error:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
 
-    const user = results[0];
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(401).json({ error: "Invalid credentials" });
+    if (results.length === 0) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
 
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "1h" });
-    res.json({ token });
+    try {
+      const user = results[0];
+      const match = await bcrypt.compare(password, user.password);
+
+      if (!match) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, {
+        expiresIn: "1h"
+      });
+
+      res.json({ token, username: user.username });
+    } catch (e) {
+      console.error("Login error:", e);
+      res.status(500).json({ error: "Login failed" });
+    }
   });
 });
+
 
 // Get todos for logged-in user
 app.get("/todos", auth, (req, res) => {
