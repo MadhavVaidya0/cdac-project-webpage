@@ -28,6 +28,30 @@ db.connect(err => {
   console.log("Connected to MySQL");
 });
 
+// Create users table if it doesn't exist
+db.query(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) UNIQUE,
+    password VARCHAR(255)
+  )
+`, (err) => {
+  if (err) console.error("Error creating users table:", err);
+  else console.log("Users table ready");
+});
+
+// Create todos table if it doesn't exist
+db.query(`
+  CREATE TABLE IF NOT EXISTS todos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    text VARCHAR(255),
+    completed BOOLEAN DEFAULT false
+  )
+`, (err) => {
+  if (err) console.error("Error creating todos table:", err);
+  else console.log("Todos table ready");
+});
+
 // ---------------- AUTH MIDDLEWARE ----------------
 function auth(req, res, next) {
   const token = req.headers.authorization;
